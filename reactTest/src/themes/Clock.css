@@ -1,0 +1,39 @@
+.clock {
+  font-family: 'Segment7Standard', monospace;
+  font-size: 6rem;
+  padding: 2rem;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem;
+  transition: all 0.3s ease;
+}
+
+.clock.dark {
+  background-color: #000;
+  color: #ff510071;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 10px rgba(255, 200, 0, 0.1);
+}
+
+.clock.light {
+  background-color: #f0f0f0;
+  color: #333;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Fallback font for LCD-like display */
+@font-face {
+  font-family: 'Segment7Standard';
+  src: url('https://fonts.cdnfonts.com/css/segment7') format('woff2');
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .clock {
+    font-size: 4rem;
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+} 

@@ -1,0 +1,31 @@
+.theme-switcher {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  margin: 1rem;
+}
+
+.theme-switcher.dark {
+  background-color: #333;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.theme-switcher.dark:hover {
+  background-color: #444;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+}
+
+.theme-switcher.light {
+  background-color: #ddd;
+  color: #333;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.theme-switcher.light:hover {
+  background-color: #ccc;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+} 

@@ -8,7 +8,6 @@ function App() {
   return (
     <ThemeProvider>
       <div className="App">
-        <h1 className="app-title">LaunchTimely</h1>
         <Clock />
         <ThemeSwitcher />
       </div>
@@ -16,4 +15,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 
