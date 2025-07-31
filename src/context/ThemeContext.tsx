@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
-type Theme = 'dark' | 'light';
+type Theme = 'dark' | 'light' | 'sunrise' | 'sunset';
 
 interface ThemeContextType {
   theme: Theme;
@@ -61,13 +61,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const configuredTheme = flags['configureTheme'];
     console.log('Flag value:', configuredTheme); // Debug log
     
-    if (configuredTheme === 'light' || configuredTheme === 'dark') {
+    if (configuredTheme === 'light' || configuredTheme === 'dark' || 
+        configuredTheme === 'sunrise' || configuredTheme === 'sunset') {
       setTheme(configuredTheme);
     }
   }, [flags]);
 
   const toggleTheme = async () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    // Cycle through themes: dark -> light -> sunrise -> sunset -> dark
+    const themeOrder: Theme[] = ['dark', 'light', 'sunrise', 'sunset'];
+    const currentIndex = themeOrder.indexOf(theme);
+    const newTheme = themeOrder[(currentIndex + 1) % themeOrder.length];
     setTheme(newTheme);
     
     // If we have a client, try to update the flag value

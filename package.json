@@ -1,6 +1,6 @@
 {
   "name": "launchtimely",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "dependencies": {
     "@launchdarkly/observability": "^0.1.0",

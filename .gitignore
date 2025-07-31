@@ -19,6 +19,7 @@
 .env.test.local
 .env.production.local
 llms.txt
+cursor-rules/
 
 npm-debug.log*
 yarn-debug.log*
