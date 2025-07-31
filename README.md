@@ -2,6 +2,19 @@
 
 A sleek and modern digital clock application built with React, featuring a realistic LCD display and theme switching capabilities.
 
+## Environment Configuration
+
+To run this application, you need to set up your environment variables:
+
+1. Copy the example environment file:
+   ```bash
+   cp src/config/env.example .env
+   ```
+
+2. Edit `.env` and replace `your-client-side-id-here` with your actual LaunchDarkly client-side ID.
+
+3. (Optional) Configure custom LaunchDarkly endpoints by uncommenting and modifying the endpoint URLs if needed.
+
 ## Features
 
 - Real-time digital clock display with LCD segment styling
@@ -21,8 +34,8 @@ A sleek and modern digital clock application built with React, featuring a reali
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Nozlaf/reactDemoTime.git
-   cd reactDemoTime
+   git clone https://github.com/yourusername/launchtimely.git
+   cd launchtimely
    ```
 
 2. Install dependencies:
@@ -30,7 +43,9 @@ A sleek and modern digital clock application built with React, featuring a reali
    npm install
    ```
 
-3. Start the development server:
+3. Set up environment variables (see Environment Configuration above)
+
+4. Start the development server:
    ```bash
    npm start
    ```
@@ -53,6 +68,7 @@ The built files will be in the `build` directory.
 - TypeScript
 - CSS3 with modern features
 - Create React App
+- LaunchDarkly for feature flags
 
 ## Version History
 

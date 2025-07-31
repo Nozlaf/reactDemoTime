@@ -4,7 +4,7 @@ import ThemeSwitcher from './components/ThemeSwitcher';
 import { ThemeProvider } from './context/ThemeContext';
 import './App.css';
 
-function App() {
+const App = () => {
   return (
     <ThemeProvider>
       <div className="App">
@@ -14,6 +14,6 @@ function App() {
       </div>
     </ThemeProvider>
   );
-}
+};
 
 export default App;

@@ -16,6 +16,10 @@
   letter-spacing: 4px;
   -webkit-font-smoothing: none;
   font-smooth: never;
+  outline: none;
+  user-select: none;
+  position: relative;
+  background-clip: padding-box;
 }
 
 .clock.dark {
@@ -25,10 +29,10 @@
     inset 0 0 20px rgba(0, 255, 0, 0.2),
     0 0 20px rgba(0, 255, 0, 0.3);
   text-shadow: 
-    0 0 5px rgba(0, 255, 0, 0.2),
-    0 0 10px rgba(0, 255, 0, 0.5),
-    0 0 20px rgba(0, 255, 0, 0.3);
-  border: 2px solid #003300;
+    0 0 5px rgba(100, 100, 0, 0.2),
+    0 0 10px rgba(100, 100, 0, 0.5),
+    0 0 20px rgba(100, 100, 0, 0.3);
+  border: none;
 }
 
 .clock.light {
@@ -38,14 +42,14 @@
     inset 0 0 20px rgba(0, 0, 0, 0.1),
     0 0 20px rgba(0, 0, 0, 0.1);
   text-shadow: none;
-  border: 2px solid #ccc;
+  border: none;
 }
 
 /* Inactive segments effect */
 .clock.dark::before {
   content: "88:88:88";
   position: absolute;
-  color: rgba(255, 155, 0, 0.01) !important;  /* Orange color with very low opacity */
+  color: rgba(0, 255, 0, 0.05);
   z-index: 1;
   top: 50%;
   left: 50%;
@@ -58,13 +62,10 @@
   position: absolute;
   color: rgba(0, 0, 0, 0.1);
   z-index: 1;
-}
-
-/* Container style */
-.clock {
-  position: relative;
-  padding: 3rem;
-  background-clip: padding-box;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 /* Responsive design */

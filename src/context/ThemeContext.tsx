@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 
 type Theme = 'dark' | 'light';
 
@@ -9,11 +10,81 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>('dark');
+  const flags = useFlags();
+  const client = useLDClient();
 
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
+  // Update context with current hour periodically
+  useEffect(() => {
+    const updateHourContext = async () => {
+      if (client) {
+        try {
+          const currentHour = new Date().getHours();
+          await client.identify({
+            kind: 'user',
+            key: localStorage.getItem('ld_user_id') || 'anonymous',
+            custom: {
+              hourOfDay: currentHour,
+              selectedTheme: theme
+            }
+          });
+        } catch (error) {
+          console.error('Failed to update hour in context:', error);
+        }
+      }
+    };
+
+    // Update immediately
+    updateHourContext();
+
+    // Then update at the start of each hour
+    const now = new Date();
+    const minutesToNextHour = 60 - now.getMinutes();
+    const msToNextHour = (minutesToNextHour * 60 - now.getSeconds()) * 1000;
+
+    // Set initial timeout to align with the start of the next hour
+    const initialTimeout = setTimeout(() => {
+      updateHourContext();
+
+      // Then set up an interval for subsequent hours
+      const hourlyInterval = setInterval(updateHourContext, 60 * 60 * 1000);
+      
+      return () => clearInterval(hourlyInterval);
+    }, msToNextHour);
+
+    return () => clearTimeout(initialTimeout);
+  }, [client, theme]);
+
+  useEffect(() => {
+    // Get theme from LaunchDarkly flag
+    const configuredTheme = flags['configureTheme'];
+    console.log('Flag value:', configuredTheme); // Debug log
+    
+    if (configuredTheme === 'light' || configuredTheme === 'dark') {
+      setTheme(configuredTheme);
+    }
+  }, [flags]);
+
+  const toggleTheme = async () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    
+    // If we have a client, try to update the flag value
+    if (client) {
+      try {
+        await client.identify({
+          kind: 'user',
+          key: localStorage.getItem('ld_user_id') || 'anonymous',
+          custom: {
+            selectedTheme: newTheme,
+            hourOfDay: new Date().getHours()
+          }
+        });
+      } catch (error) {
+        console.error('Failed to update LaunchDarkly context:', error);
+      }
+    }
   };
 
   return (
