@@ -7,6 +7,19 @@ import packageJson from '../../../package.json';
 const APP_ID = 'launchtimely';
 const APP_VERSION = packageJson.version;
 
+// Environment-specific configuration
+const getEnvironmentConfig = () => {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  return {
+    privacySetting: isDevelopment ? 'none' : 'strict',
+    disableSessionRecording: false,
+    networkRecording: {
+      enabled: true,
+      recordHeadersAndBody: isDevelopment
+    }
+  };
+};
+
 // Generate a stable user ID or get from storage
 const getUserId = (): string => {
   const storageKey = 'ld_user_id';
@@ -40,6 +53,13 @@ const getContext = (): LDContext => {
 export const initializeLDProvider = async () => {
   try {
     const context = getContext();
+    const envConfig = getEnvironmentConfig();
+    
+    console.log('LaunchDarkly Environment Config:', {
+      environment: process.env.NODE_ENV,
+      ...envConfig
+    });
+
     return await asyncWithLDProvider({
       clientSideID: process.env.REACT_APP_LD_CLIENT_SIDE_ID || '',
       context,
@@ -49,12 +69,10 @@ export const initializeLDProvider = async () => {
           id: APP_ID,
           version: APP_VERSION
         },
+        ...envConfig,
         plugins: [
           new Observability({
-            networkRecording: {
-              enabled: true,
-              recordHeadersAndBody: true
-            }
+            networkRecording: envConfig.networkRecording
           } as any)
         ]
       }
