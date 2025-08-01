@@ -32,6 +32,15 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const client = useLDClient();
   const [flagDetails, setFlagDetails] = useState<FlagDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sessionInfo, setSessionInfo] = useState<{
+    url: string | null;
+    recording: boolean;
+    privacySetting: string;
+  }>({
+    url: null,
+    recording: false,
+    privacySetting: 'unknown'
+  });
 
   useEffect(() => {
     const loadFlagDetails = async () => {
@@ -58,6 +67,18 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     loadFlagDetails();
   }, [flags, client]);
 
+  useEffect(() => {
+    // Get session recording info from window.__ld_session_info if available
+    const sessionInfo = (window as any).__ld_session_info;
+    if (sessionInfo) {
+      setSessionInfo({
+        url: sessionInfo.getCurrentSessionURL?.() || null,
+        recording: sessionInfo.getRecordingState?.() === 'Recording',
+        privacySetting: process.env.NODE_ENV === 'development' ? 'none' : 'strict'
+      });
+    }
+  }, []);
+
   if (!client) return null;
 
   return (
@@ -73,6 +94,31 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div>{process.env.NODE_ENV}</div>
             <div>Client Initialized</div>
             <div>{client ? '✅' : '❌'}</div>
+          </div>
+        </section>
+
+        <section>
+          <h3>Session Recording</h3>
+          <div className="info-grid">
+            <div>Status</div>
+            <div>{sessionInfo.recording ? '🔴 Recording' : '⚫ Not Recording'}</div>
+            <div>Privacy Setting</div>
+            <div>{sessionInfo.privacySetting}</div>
+            {sessionInfo.url && (
+              <>
+                <div>Session URL</div>
+                <div>
+                  <a 
+                    href={sessionInfo.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="session-link"
+                  >
+                    Open Session ↗
+                  </a>
+                </div>
+              </>
+            )}
           </div>
         </section>
 
