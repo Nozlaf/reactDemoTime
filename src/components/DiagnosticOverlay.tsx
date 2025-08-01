@@ -89,10 +89,12 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // Update plugin status
     const updatePluginStatus = () => {
       const recordingState = LDRecord?.getRecordingState() || 'NotRecording';
+      const observeStarted = (LDObserve as any)?._sdk?._started ?? false;
+      
       setPluginStatus({
         observability: {
           enabled: flags['enable-observability'] ?? false,
-          state: flags['enable-observability'] ? 'Started' : 'Not Started'
+          state: observeStarted ? 'Started' : 'Not Started'
         },
         recording: {
           enabled: flags['enable-session-replay'] ?? false,
@@ -130,11 +132,21 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <div className="info-grid">
             <div>Observability</div>
             <div>
-              {pluginStatus.observability.enabled ? '✅' : '❌'} {pluginStatus.observability.state}
+              {pluginStatus.observability.state === 'Started' ? (
+                <span className="plugin-active">✅ {pluginStatus.observability.state}</span>
+              ) : (
+                <span className="plugin-inactive">❌ {pluginStatus.observability.state}</span>
+              )}
             </div>
+            <div>Observe Started</div>
+            <div>{(LDObserve as any)?._sdk?._started ? 'Yes' : 'No'}</div>
             <div>Session Recording</div>
             <div>
-              {pluginStatus.recording.enabled ? '✅' : '❌'} {pluginStatus.recording.state}
+              {pluginStatus.recording.state === 'Recording' ? (
+                <span className="plugin-active">✅ {pluginStatus.recording.state}</span>
+              ) : (
+                <span className="plugin-inactive">❌ {pluginStatus.recording.state}</span>
+              )}
             </div>
           </div>
         </section>

@@ -106,4 +106,13 @@ h4 {
 
 .recording-inactive {
   color: #666;
+}
+
+.plugin-active {
+  color: #00ff00;
+  font-weight: bold;
+}
+
+.plugin-inactive {
+  color: #666;
 } 
