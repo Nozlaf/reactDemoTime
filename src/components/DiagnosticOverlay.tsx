@@ -162,7 +162,7 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               )}
             </div>
             <div>Privacy Setting</div>
-            <div>{(LDObserve as any)?._sdk?.options?.privacySetting || 'unknown'}</div>
+            <div>{(LDRecord as any)?._sdk?.privacySetting || (LDRecord as any)?._sdk?.options?.privacySetting || 'unknown'}</div>
             {LDRecord?.getSession() && (
               <>
                 <div>Session URL</div>
