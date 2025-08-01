@@ -72,6 +72,10 @@ The built files will be in the `build` directory.
 
 ## Version History
 
+- v1.2.0 - Added diagnostic menu (⌘+K) with LaunchDarkly flag details and improved flag handling
+- v1.1.1 - Added LaunchDarkly observability plugin with network recording
+- v1.1.0 - Added new themes (sunrise/sunset) and feature flags (showTitle, showButton)
+- v1.0.1 - Added time-based theme switching with LaunchDarkly integration
 - v1.0.0 - Initial release with LCD clock display and theme switching
 
 ## License
