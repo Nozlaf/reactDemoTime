@@ -125,4 +125,35 @@ h4 {
 .monospace {
   font-family: monospace;
   word-break: break-all;
+}
+
+.control-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.control-button {
+  background: none;
+  border: 1px solid #00ff00;
+  color: #00ff00;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.control-button:hover {
+  background-color: rgba(0, 255, 0, 0.1);
+}
+
+.control-button.stop {
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.control-button.stop:hover {
+  background-color: rgba(255, 68, 68, 0.1);
 } 

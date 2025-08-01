@@ -146,6 +146,22 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return () => clearInterval(interval);
   }, [flags]);
 
+  const handleRecordingControl = async () => {
+    if (!LDRecord) return;
+
+    try {
+      if (pluginStatus.recording.state === 'Recording') {
+        await LDRecord.stop();
+        console.log('Recording stopped');
+      } else {
+        await LDRecord.start();
+        console.log('Recording started');
+      }
+    } catch (error) {
+      console.error('Failed to control recording:', error);
+    }
+  };
+
   // Helper function to format timestamp
   const formatTime = (timestamp: number) => {
     if (!timestamp) return 'N/A';
@@ -207,6 +223,14 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div>{pluginStatus.recording.sessionInfo?.eventCount || 0}</div>
             <div>Bytes Since Snapshot</div>
             <div>{(pluginStatus.recording.sessionInfo?.bytesSinceSnapshot || 0).toLocaleString()} bytes</div>
+          </div>
+          <div className="control-buttons">
+            <button
+              onClick={handleRecordingControl}
+              className={`control-button ${pluginStatus.recording.state === 'Recording' ? 'stop' : 'start'}`}
+            >
+              {pluginStatus.recording.state === 'Recording' ? '⏹️ Stop Recording' : '⏺️ Start Recording'}
+            </button>
           </div>
         </section>
 
