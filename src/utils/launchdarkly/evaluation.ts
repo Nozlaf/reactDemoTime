@@ -63,9 +63,4 @@ export const createLDContext = (
       ...attributes
     }
   };
-};
-
-// Helper to generate a session ID (kept for potential future use)
-const generateSessionId = (): string => {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }; 
