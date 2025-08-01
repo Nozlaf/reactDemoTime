@@ -8,10 +8,13 @@ interface ThemeContextType {
   toggleTheme: () => void;
 }
 
+const DEFAULT_THEME: Theme = 'dark';
+const THEME_FLAG_KEY = 'configureTheme'; // Changed back to camelCase for React SDK
+
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
   const flags = useFlags();
   const client = useLDClient();
 
@@ -58,7 +61,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     // Get theme from LaunchDarkly flag
-    const configuredTheme = flags['configureTheme'];
+    const configuredTheme = flags[THEME_FLAG_KEY] ?? DEFAULT_THEME;
     console.log('Flag value:', configuredTheme); // Debug log
     
     if (configuredTheme === 'light' || configuredTheme === 'dark' || 
