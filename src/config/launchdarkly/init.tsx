@@ -2,6 +2,10 @@ import { asyncWithLDProvider } from 'launchdarkly-react-client-sdk';
 import type { LDContext } from 'launchdarkly-react-client-sdk';
 import { createLDContext } from '../../utils/launchdarkly/evaluation';
 import Observability from '@launchdarkly/observability'
+import packageJson from '../../../package.json';
+
+const APP_ID = 'launchtimely';
+const APP_VERSION = packageJson.version;
 
 // Generate a stable user ID or get from storage
 const getUserId = (): string => {
@@ -25,8 +29,8 @@ const getCurrentHour = (): number => {
 const getContext = (): LDContext => {
   const userId = getUserId();
   return createLDContext(userId, {
-    appName: 'launchtimely',
-    version: process.env.REACT_APP_VERSION || '1.0.0',
+    appName: APP_ID,
+    version: APP_VERSION,
     environment: process.env.NODE_ENV,
     hourOfDay: getCurrentHour()
   });
@@ -42,8 +46,8 @@ export const initializeLDProvider = async () => {
       options: {
         bootstrap: 'localStorage' as const,
         application: {
-          id: 'launchtimely',
-          version: process.env.REACT_APP_VERSION || '1.0.0'
+          id: APP_ID,
+          version: APP_VERSION
         },
         plugins: [
           new Observability({
