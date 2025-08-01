@@ -1,9 +1,9 @@
 {
   "name": "launchtimely",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "dependencies": {
-    "@launchdarkly/observability": "0.3.8",
+    "@launchdarkly/observability": "^0.3.8",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
