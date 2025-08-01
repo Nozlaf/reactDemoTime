@@ -14,11 +14,15 @@ type PrivacySettingType = 'strict' | 'default' | 'none';
 const getEnvironmentConfig = () => {
   const isDevelopment = process.env.NODE_ENV === 'development';
   return {
-    privacySetting: (isDevelopment ? 'none' : 'strict') as PrivacySettingType,
-    disableSessionRecording: false,
-    networkRecording: {
-      enabled: true,
-      recordHeadersAndBody: isDevelopment
+    observability: {
+      networkRecording: {
+        enabled: true,
+        recordHeadersAndBody: isDevelopment
+      }
+    },
+    sessionReplay: {
+      privacySetting: (isDevelopment ? 'none' : 'strict') as PrivacySettingType,
+      disableSessionRecording: false
     }
   };
 };
@@ -72,13 +76,12 @@ export const initializeLDProvider = async () => {
           id: APP_ID,
           version: APP_VERSION
         },
-        ...envConfig,
         plugins: [
           new Observability({
-            networkRecording: envConfig.networkRecording
+            networkRecording: envConfig.observability.networkRecording
           } as any),
           new SessionReplay({
-            privacySetting: envConfig.privacySetting
+            ...envConfig.sessionReplay
           })
         ]
       }
