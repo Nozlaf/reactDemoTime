@@ -2,16 +2,19 @@ import { asyncWithLDProvider } from 'launchdarkly-react-client-sdk';
 import type { LDContext } from 'launchdarkly-react-client-sdk';
 import { createLDContext } from '../../utils/launchdarkly/evaluation';
 import Observability from '@launchdarkly/observability'
+import SessionReplay from '@launchdarkly/session-replay'
 import packageJson from '../../../package.json';
 
 const APP_ID = 'launchtimely';
 const APP_VERSION = packageJson.version;
 
+type PrivacySettingType = 'strict' | 'default' | 'none';
+
 // Environment-specific configuration
 const getEnvironmentConfig = () => {
   const isDevelopment = process.env.NODE_ENV === 'development';
   return {
-    privacySetting: isDevelopment ? 'none' : 'strict',
+    privacySetting: (isDevelopment ? 'none' : 'strict') as PrivacySettingType,
     disableSessionRecording: false,
     networkRecording: {
       enabled: true,
@@ -73,7 +76,10 @@ export const initializeLDProvider = async () => {
         plugins: [
           new Observability({
             networkRecording: envConfig.networkRecording
-          } as any)
+          } as any),
+          new SessionReplay({
+            privacySetting: envConfig.privacySetting
+          })
         ]
       }
     });
