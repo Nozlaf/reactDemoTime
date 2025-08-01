@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { evaluateFlagDetail } from '../utils/launchdarkly/evaluation';
+import { LDObserve } from '@launchdarkly/observability';
+import { LDRecord } from '@launchdarkly/session-replay';
 import '../styles/DiagnosticOverlay.css';
 
 // Helper function to safely get session info
@@ -47,14 +49,15 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const client = useLDClient();
   const [flagDetails, setFlagDetails] = useState<FlagDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [sessionInfo, setSessionInfo] = useState<{
-    url: string | null;
-    recording: boolean;
-    privacySetting: string;
-  }>({
-    url: null,
-    recording: false,
-    privacySetting: 'unknown'
+  const [pluginStatus, setPluginStatus] = useState({
+    observability: {
+      enabled: false,
+      state: 'Not Started'
+    },
+    recording: {
+      enabled: false,
+      state: 'Not Recording'
+    }
   });
 
   useEffect(() => {
@@ -83,16 +86,26 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   }, [flags, client]);
 
   useEffect(() => {
-    // Get session recording info from window.__ld_session_info if available
-    const sessionInfo = (window as any).__ld_session_info;
-    if (sessionInfo) {
-      setSessionInfo({
-        url: sessionInfo.getCurrentSessionURL?.() || null,
-        recording: sessionInfo.getRecordingState?.() === 'Recording',
-        privacySetting: process.env.NODE_ENV === 'development' ? 'none' : 'strict'
+    // Update plugin status
+    const updatePluginStatus = () => {
+      const session = LDRecord?.getSession();
+      setPluginStatus({
+        observability: {
+          enabled: flags['enable-observability'] ?? false,
+          state: flags['enable-observability'] ? 'Started' : 'Not Started'
+        },
+        recording: {
+          enabled: flags['enable-session-replay'] ?? false,
+          state: session ? 'Recording' : 'Not Recording'
+        }
       });
-    }
-  }, []);
+    };
+
+    updatePluginStatus();
+    // Update status every second
+    const interval = setInterval(updatePluginStatus, 1000);
+    return () => clearInterval(interval);
+  }, [flags]);
 
   if (!client) return null;
 
@@ -109,10 +122,20 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div>{process.env.NODE_ENV}</div>
             <div>Client Initialized</div>
             <div>{client ? '✅' : '❌'}</div>
+          </div>
+        </section>
+
+        <section>
+          <h3>Plugin Status</h3>
+          <div className="info-grid">
             <div>Observability</div>
-            <div>{flags['enable-observability'] ? '✅' : '❌'}</div>
+            <div>
+              {pluginStatus.observability.enabled ? '✅' : '❌'} {pluginStatus.observability.state}
+            </div>
             <div>Session Recording</div>
-            <div>{flags['enable-session-replay'] ? '✅' : '❌'}</div>
+            <div>
+              {pluginStatus.recording.enabled ? '✅' : '❌'} {pluginStatus.recording.state}
+            </div>
           </div>
         </section>
 
@@ -120,20 +143,20 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <h3>Session Recording</h3>
           <div className="info-grid">
             <div>Status</div>
-            <div>{sessionInfo.recording ? '🔴 Recording' : '⚫ Not Recording'}</div>
+            <div>{pluginStatus.recording.state === 'Recording' ? '🔴 Recording' : '⚫ Not Recording'}</div>
             <div>Privacy Setting</div>
-            <div>{sessionInfo.privacySetting}</div>
-            {sessionInfo.url && (
+            <div>{process.env.NODE_ENV === 'development' ? 'none' : 'strict'}</div>
+            {LDRecord?.getSession() && (
               <>
                 <div>Session URL</div>
                 <div>
                   <a 
-                    href={sessionInfo.url} 
+                    href={window.location.href} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="session-link"
                   >
-                    Open Session ↗
+                    Current Session ↗
                   </a>
                 </div>
               </>
