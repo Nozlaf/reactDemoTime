@@ -76,17 +76,28 @@ h4 {
   word-break: break-all;
 }
 
-.flag-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.flag-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-family: monospace;
+  text-align: left;
 }
 
-.flag-item {
-  background-color: #2a2a2a;
-  border-radius: 4px;
-  padding: 15px;
-  border-left: 3px solid #00ff00;
+.flag-table th,
+.flag-table td {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.flag-table th {
+  color: #00ff00;
+  font-weight: normal;
+  border-bottom: 2px solid #00ff00;
+}
+
+.flag-table tr:hover td {
+  background-color: rgba(0, 255, 0, 0.05);
 }
 
 .session-link {

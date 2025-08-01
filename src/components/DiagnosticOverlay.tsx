@@ -293,21 +293,26 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           {isLoading ? (
             <div>Loading flag details...</div>
           ) : (
-            <div className="flag-list">
-              {flagDetails.map((flag) => (
-                <div key={flag.key} className="flag-item">
-                  <h4>{flag.key}</h4>
-                  <div className="info-grid">
-                    <div>Value</div>
-                    <div>{JSON.stringify(flag.value)}</div>
-                    <div>Variation</div>
-                    <div>{flag.variationIndex}</div>
-                    <div>Reason</div>
-                    <div>{flag.reason.kind}{flag.reason.errorKind ? ` (${flag.reason.errorKind})` : ''}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <table className="flag-table">
+              <thead>
+                <tr>
+                  <th>Flag</th>
+                  <th>Value</th>
+                  <th>Variation</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {flagDetails.map((flag) => (
+                  <tr key={flag.key}>
+                    <td>{flag.key}</td>
+                    <td>{JSON.stringify(flag.value)}</td>
+                    <td>{flag.variationIndex}</td>
+                    <td>{flag.reason.kind}{flag.reason.errorKind ? ` (${flag.reason.errorKind})` : ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </section>
       </div>
