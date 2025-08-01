@@ -1,8 +1,8 @@
 import { asyncWithLDProvider } from 'launchdarkly-react-client-sdk';
 import type { LDContext } from 'launchdarkly-react-client-sdk';
 import { createLDContext } from '../../utils/launchdarkly/evaluation';
-import Observability from '@launchdarkly/observability'
-import SessionReplay from '@launchdarkly/session-replay'
+import Observability, { LDObserve } from '@launchdarkly/observability';
+import SessionReplay, { LDRecord } from '@launchdarkly/session-replay';
 import packageJson from '../../../package.json';
 
 const APP_ID = 'launchtimely';
@@ -67,7 +67,7 @@ export const initializeLDProvider = async () => {
       ...envConfig
     });
 
-    return await asyncWithLDProvider({
+    const LDProvider = await asyncWithLDProvider({
       clientSideID: process.env.REACT_APP_LD_CLIENT_SIDE_ID || '',
       context,
       options: {
@@ -86,6 +86,32 @@ export const initializeLDProvider = async () => {
         ]
       }
     });
+
+    // Get the client instance from the provider
+    const client = (window as any).__ld_client;
+    if (client) {
+      // Check feature flags for observability and session recording
+      const observabilityEnabled = await client.variation('enable-observability', false);
+      const sessionReplayEnabled = await client.variation('enable-session-replay', false);
+
+      console.log('LaunchDarkly Plugin Status:', {
+        observabilityEnabled,
+        sessionReplayEnabled
+      });
+
+      // Initialize plugins based on feature flags
+      if (observabilityEnabled) {
+        await LDObserve.start();
+        console.log('LaunchDarkly Observability initialized');
+      }
+
+      if (sessionReplayEnabled) {
+        await LDRecord.start();
+        console.log('LaunchDarkly Session Recording initialized');
+      }
+    }
+
+    return LDProvider;
   } catch (error) {
     console.error('Failed to initialize LaunchDarkly:', error);
     throw error;

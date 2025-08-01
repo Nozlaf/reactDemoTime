@@ -3,6 +3,21 @@ import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { evaluateFlagDetail } from '../utils/launchdarkly/evaluation';
 import '../styles/DiagnosticOverlay.css';
 
+// Helper function to safely get session info
+export const getSessionInfo = () => {
+  const sessionInfo = (window as any).__ld_session_info;
+  if (!sessionInfo) {
+    console.log('LaunchDarkly session info not yet initialized. Try again in a moment.');
+    return null;
+  }
+
+  return {
+    isRecording: sessionInfo.getRecordingState?.() === 'Recording',
+    sessionURL: sessionInfo.getCurrentSessionURL?.() || null,
+    sessionInfo
+  };
+};
+
 interface FlagDetail {
   key: string;
   value: any;
@@ -94,6 +109,10 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             <div>{process.env.NODE_ENV}</div>
             <div>Client Initialized</div>
             <div>{client ? '✅' : '❌'}</div>
+            <div>Observability</div>
+            <div>{flags['enable-observability'] ? '✅' : '❌'}</div>
+            <div>Session Recording</div>
+            <div>{flags['enable-session-replay'] ? '✅' : '❌'}</div>
           </div>
         </section>
 
