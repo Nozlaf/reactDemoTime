@@ -138,8 +138,7 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <span className="plugin-inactive">❌ {pluginStatus.observability.state}</span>
               )}
             </div>
-            <div>Observe Started</div>
-            <div>{(LDObserve as any)?._sdk?._started ? 'Yes' : 'No'}</div>
+    
             <div>Session Recording</div>
             <div>
               {pluginStatus.recording.state === 'Recording' ? (
@@ -162,10 +161,8 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <span className="recording-inactive">⚫ Not Recording</span>
               )}
             </div>
-            <div>Recording State</div>
-            <div>{LDRecord?.getRecordingState() || 'Not Initialized'}</div>
             <div>Privacy Setting</div>
-            <div>{process.env.NODE_ENV === 'development' ? 'none' : 'strict'}</div>
+            <div>{(LDObserve as any)?._sdk?.options?.privacySetting || 'unknown'}</div>
             {LDRecord?.getSession() && (
               <>
                 <div>Session URL</div>
