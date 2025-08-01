@@ -1,6 +1,7 @@
 import { asyncWithLDProvider } from 'launchdarkly-react-client-sdk';
-import type { ProviderConfig, LDContext } from 'launchdarkly-react-client-sdk';
+import type { LDContext } from 'launchdarkly-react-client-sdk';
 import { createLDContext } from '../../utils/launchdarkly/evaluation';
+import Observability from '@launchdarkly/observability'
 
 // Generate a stable user ID or get from storage
 const getUserId = (): string => {
@@ -31,23 +32,29 @@ const getContext = (): LDContext => {
   });
 };
 
-// LaunchDarkly configuration
-const ldConfig: ProviderConfig = {
-  clientSideID: process.env.REACT_APP_LD_CLIENT_SIDE_ID || '',
-  options: {
-    bootstrap: 'localStorage' as const,
-    application: {
-      id: 'launchtimely',
-      version: process.env.REACT_APP_VERSION || '1.0.0'
-    }
-  }
-};
-
 // Initialize LaunchDarkly provider with context
 export const initializeLDProvider = async () => {
   try {
     const context = getContext();
-    return await asyncWithLDProvider({ ...ldConfig, context });
+    return await asyncWithLDProvider({
+      clientSideID: process.env.REACT_APP_LD_CLIENT_SIDE_ID || '',
+      context,
+      options: {
+        bootstrap: 'localStorage' as const,
+        application: {
+          id: 'launchtimely',
+          version: process.env.REACT_APP_VERSION || '1.0.0'
+        },
+        plugins: [
+          new Observability({
+            networkRecording: {
+              enabled: true,
+              recordHeadersAndBody: true
+            }
+          } as any)
+        ]
+      }
+    });
   } catch (error) {
     console.error('Failed to initialize LaunchDarkly:', error);
     throw error;
