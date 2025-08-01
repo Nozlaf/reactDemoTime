@@ -88,7 +88,7 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   useEffect(() => {
     // Update plugin status
     const updatePluginStatus = () => {
-      const session = LDRecord?.getSession();
+      const recordingState = LDRecord?.getRecordingState() || 'NotRecording';
       setPluginStatus({
         observability: {
           enabled: flags['enable-observability'] ?? false,
@@ -96,7 +96,7 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         },
         recording: {
           enabled: flags['enable-session-replay'] ?? false,
-          state: session ? 'Recording' : 'Not Recording'
+          state: recordingState === 'Recording' ? 'Recording' : 'Not Recording'
         }
       });
     };
@@ -143,7 +143,15 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <h3>Session Recording</h3>
           <div className="info-grid">
             <div>Status</div>
-            <div>{pluginStatus.recording.state === 'Recording' ? '🔴 Recording' : '⚫ Not Recording'}</div>
+            <div>
+              {pluginStatus.recording.state === 'Recording' ? (
+                <span className="recording-active">🔴 Recording</span>
+              ) : (
+                <span className="recording-inactive">⚫ Not Recording</span>
+              )}
+            </div>
+            <div>Recording State</div>
+            <div>{LDRecord?.getRecordingState() || 'Not Initialized'}</div>
             <div>Privacy Setting</div>
             <div>{process.env.NODE_ENV === 'development' ? 'none' : 'strict'}</div>
             {LDRecord?.getSession() && (

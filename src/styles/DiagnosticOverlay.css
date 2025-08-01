@@ -97,4 +97,13 @@ h4 {
 .session-link:hover {
   background-color: #00ff00;
   color: #000;
+}
+
+.recording-active {
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.recording-inactive {
+  color: #666;
 } 
