@@ -71,6 +71,11 @@ h4 {
   padding-right: 10px;
 }
 
+.info-grid > div:nth-child(even) {
+  padding-left: 10px;
+  word-break: break-all;
+}
+
 .flag-list {
   display: flex;
   flex-direction: column;
@@ -115,4 +120,9 @@ h4 {
 
 .plugin-inactive {
   color: #666;
+}
+
+.monospace {
+  font-family: monospace;
+  word-break: break-all;
 } 

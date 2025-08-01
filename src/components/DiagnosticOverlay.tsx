@@ -30,6 +30,30 @@ interface FlagDetail {
   };
 }
 
+interface SessionInfo {
+  sessionId: string;
+  environment: string;
+  startTime: number;
+  lastPushTime: number;
+  eventCount: number;
+  bytesSinceSnapshot: number;
+  userId: string;
+  sdkVersion: string;
+  appVersion: string;
+}
+
+interface PluginStatus {
+  observability: {
+    enabled: boolean;
+    state: string;
+  };
+  recording: {
+    enabled: boolean;
+    state: string;
+    sessionInfo: SessionInfo | null;
+  };
+}
+
 // Add default values mapping with camelCase keys (for React SDK)
 const DEFAULT_FLAG_VALUES: Record<string, any> = {
   configureTheme: 'dark',
@@ -49,14 +73,15 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const client = useLDClient();
   const [flagDetails, setFlagDetails] = useState<FlagDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [pluginStatus, setPluginStatus] = useState({
+  const [pluginStatus, setPluginStatus] = useState<PluginStatus>({
     observability: {
       enabled: false,
       state: 'Not Started'
     },
     recording: {
       enabled: false,
-      state: 'Not Recording'
+      state: 'Not Recording',
+      sessionInfo: null
     }
   });
 
@@ -90,6 +115,7 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const updatePluginStatus = () => {
       const recordingState = LDRecord?.getRecordingState() || 'NotRecording';
       const observeStarted = (LDObserve as any)?._sdk?._started ?? false;
+      const recordSdk = (LDRecord as any)?._sdk;
       
       setPluginStatus({
         observability: {
@@ -98,7 +124,18 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         },
         recording: {
           enabled: flags['enable-session-replay'] ?? false,
-          state: recordingState === 'Recording' ? 'Recording' : 'Not Recording'
+          state: recordingState === 'Recording' ? 'Recording' : 'Not Recording',
+          sessionInfo: recordSdk ? {
+            sessionId: recordSdk.sessionData?.sessionSecureID,
+            environment: recordSdk.environment,
+            startTime: recordSdk.sessionData?.sessionStartTime,
+            lastPushTime: recordSdk.sessionData?.lastPushTime,
+            eventCount: recordSdk.events?.length,
+            bytesSinceSnapshot: recordSdk._eventBytesSinceSnapshot,
+            userId: recordSdk.sessionData?.userIdentifier,
+            sdkVersion: recordSdk.sessionData?.userObject?.['telemetry.sdk.version'],
+            appVersion: recordSdk.sessionData?.userObject?.['launchdarkly.application.version']
+          } : null
         }
       });
     };
@@ -108,6 +145,22 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const interval = setInterval(updatePluginStatus, 1000);
     return () => clearInterval(interval);
   }, [flags]);
+
+  // Helper function to format timestamp
+  const formatTime = (timestamp: number) => {
+    if (!timestamp) return 'N/A';
+    return new Date(timestamp).toLocaleString();
+  };
+
+  // Helper function to format duration
+  const formatDuration = (startTime: number) => {
+    if (!startTime) return 'N/A';
+    const duration = Date.now() - startTime;
+    const seconds = Math.floor(duration / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+  };
 
   if (!client) return null;
 
@@ -121,9 +174,39 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
           <h3>SDK Information</h3>
           <div className="info-grid">
             <div>Environment</div>
-            <div>{process.env.NODE_ENV}</div>
+            <div>{pluginStatus.recording.sessionInfo?.environment || process.env.NODE_ENV}</div>
+            <div>SDK Version</div>
+            <div>{pluginStatus.recording.sessionInfo?.sdkVersion || 'unknown'}</div>
+            <div>App Version</div>
+            <div>{pluginStatus.recording.sessionInfo?.appVersion || 'unknown'}</div>
             <div>Client Initialized</div>
             <div>{client ? '✅' : '❌'}</div>
+          </div>
+        </section>
+
+        <section>
+          <h3>Session Information</h3>
+          <div className="info-grid">
+            <div>Session ID</div>
+            <div className="monospace">{pluginStatus.recording.sessionInfo?.sessionId || 'N/A'}</div>
+            <div>User ID</div>
+            <div className="monospace">{pluginStatus.recording.sessionInfo?.userId || 'N/A'}</div>
+            <div>Start Time</div>
+            <div>{formatTime(pluginStatus.recording.sessionInfo?.startTime || 0)}</div>
+            <div>Duration</div>
+            <div>{formatDuration(pluginStatus.recording.sessionInfo?.startTime || 0)}</div>
+            <div>Last Push</div>
+            <div>{formatTime(pluginStatus.recording.sessionInfo?.lastPushTime || 0)}</div>
+          </div>
+        </section>
+
+        <section>
+          <h3>Recording Metrics</h3>
+          <div className="info-grid">
+            <div>Event Count</div>
+            <div>{pluginStatus.recording.sessionInfo?.eventCount || 0}</div>
+            <div>Bytes Since Snapshot</div>
+            <div>{(pluginStatus.recording.sessionInfo?.bytesSinceSnapshot || 0).toLocaleString()} bytes</div>
           </div>
         </section>
 
