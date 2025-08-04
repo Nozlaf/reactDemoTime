@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { evaluateFlagDetail } from '../utils/launchdarkly/evaluation';
 import { LDObserve } from '@launchdarkly/observability';
@@ -75,7 +75,7 @@ const FLAG_KEY_MAPPING: Record<string, string> = {
 const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const flags = useFlags();
   const client = useLDClient();
-  const { preferences, loading: preferencesLoading } = usePreferences();
+  const { preferences, error: preferencesError, loading: preferencesLoading, refetch: refetchPreferences } = usePreferences();
   const [flagDetails, setFlagDetails] = useState<FlagDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pluginStatus, setPluginStatus] = useState<PluginStatus>({
@@ -90,11 +90,11 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   });
 
-  useEffect(() => {
-    const loadFlagDetails = async () => {
-      if (!client) return;
+  // Load flag details
+  const loadFlagDetails = useCallback(async () => {
+    if (!client) return;
 
-      // Use camelCase for React SDK and kebab-case for direct client calls
+    try {
       const details = await Promise.all(
         Object.entries(DEFAULT_FLAG_VALUES).map(async ([camelKey, defaultValue]) => {
           const kebabKey = FLAG_KEY_MAPPING[camelKey];
@@ -110,49 +110,58 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
       setFlagDetails(details);
       setIsLoading(false);
-    };
-
-    loadFlagDetails();
+    } catch (error) {
+      console.error('Error loading flag details:', error);
+      setIsLoading(false);
+    }
   }, [flags, client]);
 
-  useEffect(() => {
-    // Update plugin status
-    const updatePluginStatus = () => {
-      const recordingState = LDRecord?.getRecordingState() || 'NotRecording';
-      const observeStarted = (LDObserve as any)?._sdk?._started ?? false;
-      const recordSdk = (LDRecord as any)?._sdk;
-      
-      setPluginStatus({
-        observability: {
-          enabled: flags['enable-observability'] ?? false,
-          state: observeStarted ? 'Started' : 'Not Started',
-          serverEnabled: preferences?.observability.enabled
-        },
-        recording: {
-          enabled: flags['enable-session-replay'] ?? false,
-          state: recordingState === 'Recording' ? 'Recording' : 'Not Recording',
-          sessionInfo: recordSdk ? {
-            sessionId: recordSdk.sessionData?.sessionSecureID,
-            environment: recordSdk.environment,
-            startTime: recordSdk.sessionData?.sessionStartTime,
-            lastPushTime: recordSdk.sessionData?.lastPushTime,
-            eventCount: recordSdk.events?.length,
-            bytesSinceSnapshot: recordSdk._eventBytesSinceSnapshot,
-            userId: recordSdk.sessionData?.userIdentifier,
-            sdkVersion: recordSdk.sessionData?.userObject?.['telemetry.sdk.version'],
-            appVersion: recordSdk.sessionData?.userObject?.['launchdarkly.application.version']
-          } : null,
-          serverEnabled: preferences?.observability.sessionRecording.enabled,
-          serverPrivacySetting: preferences?.observability.sessionRecording.privacySetting
-        }
-      });
-    };
-
-    updatePluginStatus();
-    // Update status every second
-    const interval = setInterval(updatePluginStatus, 1000);
-    return () => clearInterval(interval);
+  // Update plugin status
+  const updatePluginStatus = useCallback(() => {
+    const recordingState = LDRecord?.getRecordingState() || 'NotRecording';
+    const observeStarted = (LDObserve as any)?._sdk?._started ?? false;
+    const recordSdk = (LDRecord as any)?._sdk;
+    
+    setPluginStatus({
+      observability: {
+        enabled: flags['enable-observability'] ?? false,
+        state: observeStarted ? 'Started' : 'Not Started',
+        serverEnabled: preferences?.observability.enabled
+      },
+      recording: {
+        enabled: flags['enable-session-replay'] ?? false,
+        state: recordingState === 'Recording' ? 'Recording' : 'Not Recording',
+        sessionInfo: recordSdk ? {
+          sessionId: recordSdk.sessionData?.sessionSecureID,
+          environment: recordSdk.environment,
+          startTime: recordSdk.sessionData?.sessionStartTime,
+          lastPushTime: recordSdk.sessionData?.lastPushTime,
+          eventCount: recordSdk.events?.length,
+          bytesSinceSnapshot: recordSdk._eventBytesSinceSnapshot,
+          userId: recordSdk.sessionData?.userIdentifier,
+          sdkVersion: recordSdk.sessionData?.userObject?.['telemetry.sdk.version'],
+          appVersion: recordSdk.sessionData?.userObject?.['launchdarkly.application.version']
+        } : null,
+        serverEnabled: preferences?.observability.sessionRecording.enabled,
+        serverPrivacySetting: preferences?.observability.sessionRecording.privacySetting
+      }
+    });
   }, [flags, preferences]);
+
+  // Initial load and periodic updates
+  useEffect(() => {
+    loadFlagDetails();
+    updatePluginStatus();
+
+    // Set up periodic updates
+    const updateInterval = setInterval(() => {
+      loadFlagDetails();
+      updatePluginStatus();
+      refetchPreferences(); // Periodically check server preferences
+    }, 5000); // Update every 5 seconds
+
+    return () => clearInterval(updateInterval);
+  }, [loadFlagDetails, updatePluginStatus, refetchPreferences]);
 
   const handleRecordingControl = async () => {
     if (!LDRecord) return;
@@ -165,6 +174,8 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         await LDRecord.start();
         console.log('Recording started');
       }
+      // Immediately update status after control action
+      updatePluginStatus();
     } catch (error) {
       console.error('Failed to control recording:', error);
     }
@@ -194,6 +205,12 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <button className="close-button" onClick={onClose}>×</button>
         <h2>LaunchDarkly Diagnostics</h2>
         
+        {preferencesError && (
+          <div className="error-banner">
+            Error fetching server preferences: {preferencesError}
+          </div>
+        )}
+
         <section>
           <h3>SDK Information</h3>
           <div className="info-grid">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getUserId } from '../config/launchdarkly/init';
 
 interface Preferences {
@@ -22,29 +22,34 @@ export const usePreferences = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchPreferences = async () => {
-      try {
-        const userId = getUserId(); // Get the same user ID used by LaunchDarkly
-        const response = await fetch(`/api/preferences?userId=${encodeURIComponent(userId)}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch preferences');
-        }
-
-        const data = await response.json();
-        setPreferences(data);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        setPreferences(null);
-      } finally {
-        setLoading(false);
+  const fetchPreferences = useCallback(async () => {
+    try {
+      const userId = getUserId(); // Get the same user ID used by LaunchDarkly
+      const response = await fetch(`/api/preferences?userId=${encodeURIComponent(userId)}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch preferences');
       }
-    };
 
-    fetchPreferences();
+      const data = await response.json();
+      setPreferences(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      setPreferences(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  return { preferences, error, loading };
+  useEffect(() => {
+    fetchPreferences();
+  }, [fetchPreferences]);
+
+  return { 
+    preferences, 
+    error, 
+    loading,
+    refetch: fetchPreferences // Expose refetch function
+  };
 };

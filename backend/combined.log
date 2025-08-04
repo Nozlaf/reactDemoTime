@@ -52,3 +52,25 @@
 {"environment":"development","level":"info","message":"LaunchDarkly client initialized successfully","serviceVersion":"5c967560899da386f389fbe94a73e82fe79b4989","timestamp":"2025-08-04T00:46:26.565Z"}
 {"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:46:26.568Z"}
 {"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:46:26.569Z"}
+{"level":"info","message":"SIGTERM received. Shutting down...","timestamp":"2025-08-04T00:46:33.140Z"}
+{"level":"info","message":"Closing LaunchDarkly client...","timestamp":"2025-08-04T00:46:33.142Z"}
+{"level":"info","message":"Initializing LaunchDarkly client...","timestamp":"2025-08-04T00:46:34.022Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:46:34.017Z"}
+{"level":"warn","message":"Ignoring unknown config option \"logLevel\"","timestamp":"2025-08-04T00:46:34.033Z"}
+{"level":"warn","message":"The waitForInitialization function was called without a timeout specified. In a future version a default timeout will be applied.","timestamp":"2025-08-04T00:46:34.100Z"}
+{"level":"info","message":"Opened LaunchDarkly stream connection","timestamp":"2025-08-04T00:46:34.472Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:46:34.485Z"}
+{"environment":"development","level":"info","message":"LaunchDarkly client initialized successfully","serviceVersion":"201358d0e221cace3593c28da1df8058f3de391e","timestamp":"2025-08-04T00:46:34.482Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:46:34.485Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:46:34.485Z"}
+{"level":"info","message":"SIGTERM received. Shutting down...","timestamp":"2025-08-04T00:46:38.834Z"}
+{"level":"info","message":"Closing LaunchDarkly client...","timestamp":"2025-08-04T00:46:38.834Z"}
+{"level":"info","message":"Initializing LaunchDarkly client...","timestamp":"2025-08-04T00:46:39.711Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:46:39.707Z"}
+{"level":"warn","message":"Ignoring unknown config option \"logLevel\"","timestamp":"2025-08-04T00:46:39.720Z"}
+{"level":"warn","message":"The waitForInitialization function was called without a timeout specified. In a future version a default timeout will be applied.","timestamp":"2025-08-04T00:46:39.788Z"}
+{"level":"info","message":"Opened LaunchDarkly stream connection","timestamp":"2025-08-04T00:46:40.155Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:46:40.168Z"}
+{"environment":"development","level":"info","message":"LaunchDarkly client initialized successfully","serviceVersion":"201358d0e221cace3593c28da1df8058f3de391e","timestamp":"2025-08-04T00:46:40.165Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:46:40.168Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:46:40.168Z"}
