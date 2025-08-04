@@ -2,9 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createLogger, format, transports } from 'winston';
-import * as LaunchDarkly from '@launchdarkly/node-server-sdk';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import path from 'path';
+import { initializeLDClient, getLDClient, closeLDClient } from './config/launchdarkly';
 
 // Load environment variables
 dotenv.config();
@@ -21,9 +21,6 @@ const logger = createLogger({
     new transports.File({ filename: 'combined.log' })
   ]
 });
-
-// Initialize LaunchDarkly client
-const ldClient = LaunchDarkly.init(process.env.LD_SERVER_SDK_KEY || '');
 
 const app = express();
 
@@ -56,28 +53,43 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-app.get('/api/preferences', async (req, res) => {
+// Example endpoint using LaunchDarkly
+app.get('/api/features', async (req, res) => {
   try {
-    // Wait for LaunchDarkly client to initialize
-    await ldClient.waitForInitialization();
-
-    // Create a user context for LaunchDarkly
-    const context = {
-      kind: 'user',
-      key: req.query.userId?.toString() || 'anonymous-user',
-      anonymous: !req.query.userId
+    const client = getLDClient();
+    const user = {
+      key: req.query.userId?.toString() || 'anonymous',
+      custom: {
+        groups: ['beta-testers']
+      }
     };
 
-    // Fetch feature flags
-    const diagnosticsEnabled = await ldClient.variation('diagnostics-enabled', context, false);
-    const betaFeaturesEnabled = await ldClient.variation('beta-features-enabled', context, false);
+    const allFlags = await client.allFlagsState(user);
+    res.json(allFlags);
+  } catch (error) {
+    logger.error('Error fetching feature flags:', error);
+    res.status(500).json({ error: 'Failed to fetch feature flags' });
+  }
+});
+
+// Example endpoint for user preferences with feature flag
+app.get('/api/preferences', async (req, res) => {
+  try {
+    const client = getLDClient();
+    const user = {
+      key: req.query.userId?.toString() || 'anonymous'
+    };
+
+    const betaFeaturesEnabled = await client.variation('beta-features', user, false);
+    const diagnosticsEnabled = await client.variation('enable-diagnostics', user, false);
+    const theme = await client.variation('default-theme', user, 'light');
 
     res.json({
-      theme: await ldClient.variation('default-theme', context, 'light'),
+      theme,
       timezone: 'UTC',
       features: {
-        diagnosticsEnabled,
-        betaFeaturesEnabled
+        betaFeaturesEnabled,
+        diagnosticsEnabled
       }
     });
   } catch (error) {
@@ -102,17 +114,26 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
 
 const PORT = process.env.PORT || 3001;
 
-// Initialize server only after LaunchDarkly client is ready
-ldClient.waitForInitialization().then(() => {
-  app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`);
-    logger.info('LaunchDarkly client initialized successfully');
-    if (process.env.NODE_ENV === 'development') {
-      logger.info('Development proxy enabled - forwarding frontend requests to React dev server');
-    }
-    console.log(`Server running on port ${PORT}`);
+// Initialize LaunchDarkly before starting the server
+initializeLDClient()
+  .then(() => {
+    app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+      logger.info('LaunchDarkly client initialized successfully');
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('Development proxy enabled - forwarding frontend requests to React dev server');
+      }
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    logger.error('Failed to initialize LaunchDarkly:', error);
+    process.exit(1);
   });
-}).catch(error => {
-  logger.error('Failed to initialize LaunchDarkly client:', error);
-  process.exit(1);
+
+// Handle graceful shutdown
+process.on('SIGTERM', async () => {
+  logger.info('SIGTERM received. Shutting down...');
+  await closeLDClient();
+  process.exit(0);
 });
