@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
       - backend
     environment:
@@ -20,4 +20,5 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=production
-      - PORT=3001 
+      - PORT=3001
+      - LD_SERVER_SDK_KEY=${LD_SERVER_SDK_KEY}

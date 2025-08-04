@@ -24,7 +24,8 @@
     "start:strict": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "NODE_ENV=development concurrently \"npm start\" \"cd backend && npm run dev\""
   },
   "eslintConfig": {
     "extends": [
@@ -45,6 +46,7 @@
     ]
   },
   "devDependencies": {
+    "concurrently": "^9.2.0",
     "serve": "^14.2.4"
   }
 }
