@@ -22,3 +22,33 @@
 {"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:38:15.074Z"}
 {"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:38:15.075Z"}
 {"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:38:15.076Z"}
+{"level":"info","message":"SIGTERM received. Shutting down...","timestamp":"2025-08-04T00:41:09.750Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:41:10.579Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:41:11.873Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:41:11.873Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:41:11.874Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:43:11.235Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:43:13.094Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:43:13.096Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:43:13.097Z"}
+{"level":"info","message":"SIGTERM received. Shutting down...","timestamp":"2025-08-04T00:46:03.400Z"}
+{"level":"info","message":"Initializing LaunchDarkly client...","timestamp":"2025-08-04T00:46:04.371Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:46:04.365Z"}
+{"level":"warn","message":"Ignoring unknown config option \"logLevel\"","timestamp":"2025-08-04T00:46:04.381Z"}
+{"level":"warn","message":"The waitForInitialization function was called without a timeout specified. In a future version a default timeout will be applied.","timestamp":"2025-08-04T00:46:04.457Z"}
+{"level":"info","message":"Opened LaunchDarkly stream connection","timestamp":"2025-08-04T00:46:04.829Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:46:04.848Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:46:04.848Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:46:04.849Z"}
+{"environment":"development","level":"info","message":"LaunchDarkly client initialized successfully","serviceVersion":"5c967560899da386f389fbe94a73e82fe79b4989","timestamp":"2025-08-04T00:46:04.844Z"}
+{"level":"info","message":"SIGTERM received. Shutting down...","timestamp":"2025-08-04T00:46:25.140Z"}
+{"level":"info","message":"Closing LaunchDarkly client...","timestamp":"2025-08-04T00:46:25.141Z"}
+{"level":"info","message":"Initializing LaunchDarkly client...","timestamp":"2025-08-04T00:46:26.101Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:46:26.095Z"}
+{"level":"warn","message":"Ignoring unknown config option \"logLevel\"","timestamp":"2025-08-04T00:46:26.111Z"}
+{"level":"warn","message":"The waitForInitialization function was called without a timeout specified. In a future version a default timeout will be applied.","timestamp":"2025-08-04T00:46:26.185Z"}
+{"level":"info","message":"Opened LaunchDarkly stream connection","timestamp":"2025-08-04T00:46:26.555Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:46:26.568Z"}
+{"environment":"development","level":"info","message":"LaunchDarkly client initialized successfully","serviceVersion":"5c967560899da386f389fbe94a73e82fe79b4989","timestamp":"2025-08-04T00:46:26.565Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:46:26.568Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:46:26.569Z"}

@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { createLogger, format, transports } from 'winston';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import path from 'path';
-import { initializeLDClient, getLDClient, closeLDClient } from './config/launchdarkly';
+import { initializeLDClient, getLDClient, closeLDClient, evaluateFlag } from './config/launchdarkly';
 
 // Load environment variables
 dotenv.config();
@@ -65,6 +65,10 @@ app.get('/api/features', async (req, res) => {
     };
 
     const allFlags = await client.allFlagsState(user);
+    logger.info('Retrieved all feature flags:', {
+      user: user.key,
+      flagCount: Object.keys(allFlags.allValues()).length
+    });
     res.json(allFlags);
   } catch (error) {
     logger.error('Error fetching feature flags:', error);
@@ -75,7 +79,6 @@ app.get('/api/features', async (req, res) => {
 // Example endpoint for user preferences with feature flag
 app.get('/api/preferences', async (req, res) => {
   try {
-    const client = getLDClient();
     const user = {
       key: req.query.userId?.toString() || 'anonymous',
       custom: {
@@ -83,17 +86,19 @@ app.get('/api/preferences', async (req, res) => {
       }
     };
 
+    logger.info('Evaluating preferences for user:', { user });
+
     // Core feature flags
-    const betaFeaturesEnabled = await client.variation('beta-features', user, false);
-    const diagnosticsEnabled = await client.variation('enable-diagnostics', user, false);
-    const theme = await client.variation('default-theme', user, 'light');
+    const betaFeaturesEnabled = await evaluateFlag('beta-features', user, false);
+    const diagnosticsEnabled = await evaluateFlag('enable-diagnostics', user, false);
+    const theme = await evaluateFlag('default-theme', user, 'light');
 
     // Session recording and observability flags
-    const sessionReplayEnabled = await client.variation('enable-session-replay', user, false);
-    const observabilityEnabled = await client.variation('enable-observability', user, false);
-    const privacySetting = await client.variation('session-recording-privacy', user, 'strict');
+    const sessionReplayEnabled = await evaluateFlag('enable-session-replay', user, false);
+    const observabilityEnabled = await evaluateFlag('enable-observability', user, false);
+    const privacySetting = await evaluateFlag('session-recording-privacy', user, 'strict');
 
-    res.json({
+    const preferences = {
       theme,
       timezone: 'UTC',
       features: {
@@ -107,7 +112,10 @@ app.get('/api/preferences', async (req, res) => {
           privacySetting
         }
       }
-    });
+    };
+
+    logger.info('Evaluated preferences:', { user: user.key, preferences });
+    res.json(preferences);
   } catch (error) {
     logger.error('Error fetching preferences:', error);
     res.status(500).json({ error: 'Failed to fetch preferences' });
