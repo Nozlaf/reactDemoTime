@@ -77,12 +77,21 @@ app.get('/api/preferences', async (req, res) => {
   try {
     const client = getLDClient();
     const user = {
-      key: req.query.userId?.toString() || 'anonymous'
+      key: req.query.userId?.toString() || 'anonymous',
+      custom: {
+        environment: process.env.NODE_ENV || 'development'
+      }
     };
 
+    // Core feature flags
     const betaFeaturesEnabled = await client.variation('beta-features', user, false);
     const diagnosticsEnabled = await client.variation('enable-diagnostics', user, false);
     const theme = await client.variation('default-theme', user, 'light');
+
+    // Session recording and observability flags
+    const sessionReplayEnabled = await client.variation('enable-session-replay', user, false);
+    const observabilityEnabled = await client.variation('enable-observability', user, false);
+    const privacySetting = await client.variation('session-recording-privacy', user, 'strict');
 
     res.json({
       theme,
@@ -90,6 +99,13 @@ app.get('/api/preferences', async (req, res) => {
       features: {
         betaFeaturesEnabled,
         diagnosticsEnabled
+      },
+      observability: {
+        enabled: observabilityEnabled,
+        sessionRecording: {
+          enabled: sessionReplayEnabled,
+          privacySetting
+        }
       }
     });
   } catch (error) {

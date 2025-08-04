@@ -4,3 +4,21 @@
 {"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:11:45.521Z"}
 {"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:11:45.522Z"}
 {"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:11:45.522Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:31:00.142Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:31:02.172Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:31:02.173Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:31:02.174Z"}
+{"level":"info","message":"SIGTERM received. Shutting down...","timestamp":"2025-08-04T00:35:42.726Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:35:43.773Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:35:44.997Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:35:44.998Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:35:44.998Z"}
+{"level":"info","message":"SIGTERM received. Shutting down...","timestamp":"2025-08-04T00:35:47.699Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:35:48.521Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:35:50.052Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:35:50.053Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:35:50.053Z"}
+{"level":"info","message":"Setting up development proxy to React dev server","timestamp":"2025-08-04T00:38:13.357Z"}
+{"level":"info","message":"Server running on port 3001","timestamp":"2025-08-04T00:38:15.074Z"}
+{"level":"info","message":"LaunchDarkly client initialized successfully","timestamp":"2025-08-04T00:38:15.075Z"}
+{"level":"info","message":"Development proxy enabled - forwarding frontend requests to React dev server","timestamp":"2025-08-04T00:38:15.076Z"}

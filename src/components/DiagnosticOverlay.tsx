@@ -3,6 +3,7 @@ import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { evaluateFlagDetail } from '../utils/launchdarkly/evaluation';
 import { LDObserve } from '@launchdarkly/observability';
 import { LDRecord } from '@launchdarkly/session-replay';
+import { usePreferences } from '../hooks/usePreferences';
 import '../styles/DiagnosticOverlay.css';
 
 // Helper function to safely get session info
@@ -46,11 +47,14 @@ interface PluginStatus {
   observability: {
     enabled: boolean;
     state: string;
+    serverEnabled?: boolean;
   };
   recording: {
     enabled: boolean;
     state: string;
     sessionInfo: SessionInfo | null;
+    serverEnabled?: boolean;
+    serverPrivacySetting?: string;
   };
 }
 
@@ -71,6 +75,7 @@ const FLAG_KEY_MAPPING: Record<string, string> = {
 const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const flags = useFlags();
   const client = useLDClient();
+  const { preferences, loading: preferencesLoading } = usePreferences();
   const [flagDetails, setFlagDetails] = useState<FlagDetail[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [pluginStatus, setPluginStatus] = useState<PluginStatus>({
@@ -120,7 +125,8 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setPluginStatus({
         observability: {
           enabled: flags['enable-observability'] ?? false,
-          state: observeStarted ? 'Started' : 'Not Started'
+          state: observeStarted ? 'Started' : 'Not Started',
+          serverEnabled: preferences?.observability.enabled
         },
         recording: {
           enabled: flags['enable-session-replay'] ?? false,
@@ -135,7 +141,9 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             userId: recordSdk.sessionData?.userIdentifier,
             sdkVersion: recordSdk.sessionData?.userObject?.['telemetry.sdk.version'],
             appVersion: recordSdk.sessionData?.userObject?.['launchdarkly.application.version']
-          } : null
+          } : null,
+          serverEnabled: preferences?.observability.sessionRecording.enabled,
+          serverPrivacySetting: preferences?.observability.sessionRecording.privacySetting
         }
       });
     };
@@ -144,7 +152,7 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // Update status every second
     const interval = setInterval(updatePluginStatus, 1000);
     return () => clearInterval(interval);
-  }, [flags]);
+  }, [flags, preferences]);
 
   const handleRecordingControl = async () => {
     if (!LDRecord) return;
@@ -237,7 +245,7 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <section>
           <h3>Plugin Status</h3>
           <div className="info-grid">
-            <div>Observability</div>
+            <div>Observability (Client)</div>
             <div>
               {pluginStatus.observability.state === 'Started' ? (
                 <span className="plugin-active">✅ {pluginStatus.observability.state}</span>
@@ -245,8 +253,19 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <span className="plugin-inactive">❌ {pluginStatus.observability.state}</span>
               )}
             </div>
+
+            <div>Observability (Server)</div>
+            <div>
+              {preferencesLoading ? (
+                <span>Loading...</span>
+              ) : pluginStatus.observability.serverEnabled ? (
+                <span className="plugin-active">✅ Enabled</span>
+              ) : (
+                <span className="plugin-inactive">❌ Disabled</span>
+              )}
+            </div>
     
-            <div>Session Recording</div>
+            <div>Session Recording (Client)</div>
             <div>
               {pluginStatus.recording.state === 'Recording' ? (
                 <span className="plugin-active">✅ {pluginStatus.recording.state}</span>
@@ -254,13 +273,24 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <span className="plugin-inactive">❌ {pluginStatus.recording.state}</span>
               )}
             </div>
+
+            <div>Session Recording (Server)</div>
+            <div>
+              {preferencesLoading ? (
+                <span>Loading...</span>
+              ) : pluginStatus.recording.serverEnabled ? (
+                <span className="plugin-active">✅ Enabled</span>
+              ) : (
+                <span className="plugin-inactive">❌ Disabled</span>
+              )}
+            </div>
           </div>
         </section>
 
         <section>
-          <h3>Session Recording</h3>
+          <h3>Session Recording Configuration</h3>
           <div className="info-grid">
-            <div>Status</div>
+            <div>Client Status</div>
             <div>
               {pluginStatus.recording.state === 'Recording' ? (
                 <span className="recording-active">🔴 Recording</span>
@@ -268,8 +298,10 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <span className="recording-inactive">⚫ Not Recording</span>
               )}
             </div>
-            <div>Privacy Setting</div>
+            <div>Client Privacy Setting</div>
             <div>{(LDRecord as any)?._sdk?.privacySetting || (LDRecord as any)?._sdk?.options?.privacySetting || 'unknown'}</div>
+            <div>Server Privacy Setting</div>
+            <div>{preferencesLoading ? 'Loading...' : pluginStatus.recording.serverPrivacySetting || 'unknown'}</div>
             {LDRecord?.getSession() && (
               <>
                 <div>Session URL</div>
@@ -320,4 +352,4 @@ const DiagnosticOverlay: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   );
 };
 
-export default DiagnosticOverlay; 
+export default DiagnosticOverlay;

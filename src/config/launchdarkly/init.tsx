@@ -28,7 +28,7 @@ const getEnvironmentConfig = () => {
 };
 
 // Generate a stable user ID or get from storage
-const getUserId = (): string => {
+export const getUserId = (): string => {
   const storageKey = 'ld_user_id';
   let userId = localStorage.getItem(storageKey);
   
@@ -116,4 +116,4 @@ export const initializeLDProvider = async () => {
     console.error('Failed to initialize LaunchDarkly:', error);
     throw error;
   }
-}; 
+};
